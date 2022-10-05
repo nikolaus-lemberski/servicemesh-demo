@@ -22,7 +22,7 @@ spec:
       containers:
       - name: service-c
         image: quay.io/nlembers/opentour/service-c:1.0
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
         env:
         - name: PORT
           value: "8080"
