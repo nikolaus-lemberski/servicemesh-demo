@@ -1,0 +1,13 @@
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: service-c
+spec:
+  hosts:
+  - service-c
+  http:
+  - route:
+    - destination:
+        host: service-c
+        subset: version-v2
+      weight: 100

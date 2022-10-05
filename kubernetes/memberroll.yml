@@ -1,0 +1,8 @@
+kind: ServiceMeshMemberRoll
+apiVersion: maistra.io/v1
+metadata:
+  name: default
+  namespace: opentour-3-service-mesh-system
+spec:
+  members:
+    - opentour-3-service-mesh-app

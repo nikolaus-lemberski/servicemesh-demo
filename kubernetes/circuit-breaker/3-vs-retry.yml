@@ -1,0 +1,15 @@
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: service-c
+spec:
+  hosts:
+  - service-c
+  http:
+  - route:
+    - destination:
+        host: service-c
+    retries:
+        attempts: 3
+        perTryTimeout: 1s
+        retryOn: 5xx

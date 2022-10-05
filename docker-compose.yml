@@ -1,0 +1,36 @@
+version: "3"
+services:
+  service-a:
+    build: ./service-a
+    container_name: service-a
+    image: service-a:latest
+    ports:
+      - "3000:8080"
+    networks:
+      - opentour
+    environment:
+      PORT: 8080
+      SERVICE_B_HOST: service-b:8080
+  service-b:
+    build: ./service-b
+    container_name: service-b
+    image: service-b:latest
+    ports:
+      - "3001:8080"
+    networks:
+      - opentour
+    environment:
+      PORT: 8080
+      SERVICE_C_HOST: service-c:8080
+  service-c:
+    build: ./service-c
+    container_name: service-c
+    image: service-c:latest
+    ports:
+      - "3002:8080"
+    networks:
+      - opentour
+    environment:
+      PORT: 8080
+networks:
+  opentour: {}
