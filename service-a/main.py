@@ -30,15 +30,15 @@ async def index(request_headers):
     except Exception as e:
         text = f"Service B | {e}"
 
-    return (f"Service A <- {text}\n", 200)
+    return f"Service A <- {text}\n", 200
 
 
 async def health():
-    return ("UP", 200)
+    return "UP", 200
 
 
 async def page_not_found():
-    return ("Page not found", 404)
+    return "Page not found", 404
 
 
 async def extract_tracing_headers(request_headers):

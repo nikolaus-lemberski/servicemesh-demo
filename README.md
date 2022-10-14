@@ -8,15 +8,6 @@ Call service-a to see the call hierarchy. service-c has endpoints to throw error
 
 Projects can be run via docker ('podman-compose up --build') or deployed to OpenShift Kubernetes (see Deployment files in folder 'kubernetes').
 
-
-## Presentation
-
-Browser based presentation via demoit
-
-https://github.com/dgageot/demoit
-
-Install demoit and run 'demoit' in folder 'presentation'.
-
 ## OpenShift Service Mesh preparation
 
 See https://docs.openshift.com/container-platform/4.11/service_mesh/v2x/installing-ossm.html

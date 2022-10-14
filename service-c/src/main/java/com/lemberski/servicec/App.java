@@ -29,9 +29,7 @@ public final class App {
             ctx.result(format("Service C | %s | %s | %d", env.version(), env.hostname(), count));
         });
 
-        app.get("/health", ctx -> {
-            ctx.result("UP");
-        });
+        app.get("/health", ctx -> ctx.result("UP"));
 
         app.get("/crash", ctx -> {
             crash = true;
