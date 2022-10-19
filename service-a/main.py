@@ -61,4 +61,4 @@ async def extract_tracing_headers(request_headers):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=port, server_header=False, access_log=False)
+    uvicorn.run(app, host="0.0.0.0", port=port, proxy_headers=True, server_header=False, access_log=False)
