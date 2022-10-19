@@ -55,19 +55,19 @@ The Sidecar pattern offloads functionality from application code to the Service 
 
 ### Control Plane and Data Plane
 
-As we've bundled all the features for Observability, Security and Resiliency in a Sidecar), we can create a Control Plane to configure the sidecars.
+As we've bundled all the features for Observability, Security and Resiliency in a Sidecar), we can use the Control Plane to configure the sidecars.
 
 ![Control Plane and Data Plane](docs/diagrams/control_data_plane.png)
 
 ## The sample apps
 
-I created 3 samples apps, called Service A, B and C.
+I created 3 sample apps, called Service A, B and C.
 
 * Service A: Python app with an upstream call to Service B.
 * Service B: TypeScript/Deno app with an upstream call to Service C.
-* Service C: Java app with the Javalin web framework.
+* Service C: Java app
 
-To play with the apps, just run the podman-compose file ('podman-compose up --build' - also works with Docker Compose) and call service-a to see the call hierarchy. service-c has endpoints to activate error mode ('/crash', '/repair').
+To play with the apps, just run the podman-compose file ('podman-compose up --build' - also works with Docker Compose) and call service-a on localhost:3000 to see the call hierarchy. service-c (port 3002) has endpoints to activate error mode ('/crash', '/repair').
 
 Then let's move forward to Kubernetes / OpenShift. If you don't have access to an OpenShift cluster, just use [OpenShift Local](https://developers.redhat.com/products/openshift-local/overview)
 
@@ -97,13 +97,15 @@ Then:
 
 ### Deploy the sample apps
 
+[repo_base]: https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main
+
 In your apps project, deploy the sample apps:
 
 ```
-oc create -f kubernetes/a-deploy.yml
-oc create -f kubernetes/b-deploy.yml
-oc create -f kubernetes/c-v1-deploy.yml
-oc create -f kubernetes/c-v2-deploy.yml
+oc create -f [repo_base]/kubernetes/a-deploy.yml
+oc create -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/b-deploy.yml
+oc create -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/c-v1-deploy.yml
+oc create -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/c-v2-deploy.yml
 ```
 
 Check the pods - all pods should be running and you should see in the READY column "2/2". Why 2? In the pod are 2 containers - one for the app and one for the Envoy Sidecar.
