@@ -97,12 +97,10 @@ Then:
 
 ### Deploy the sample apps
 
-[repo_base]: https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main
-
 In your apps project, deploy the sample apps:
 
 ```
-oc create -f [repo_base]/kubernetes/a-deploy.yml
+oc create -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/a-deploy.yml
 oc create -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/b-deploy.yml
 oc create -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/c-v1-deploy.yml
 oc create -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/c-v2-deploy.yml
@@ -115,7 +113,7 @@ Check the pods - all pods should be running and you should see in the READY colu
 Now we create a Gateway and expose our service-a.
 
 ```
-oc create -f kubernetes/gateway.yml
+oc create -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/gateway.yml
 oc get route istio-ingressgateway -n istio-system
 
 ROUTE=....
@@ -127,7 +125,7 @@ If the services respond correctly, continue.
 ### Canary Releases
 
 ```
-oc create -f kubernetes/destination-rules.yml
+oc create -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/destination-rules.yml
 ```
 
 Open a second terminal and run:
@@ -139,10 +137,10 @@ while true; do curl $ROUTE/service-a; sleep 0.5; done
 Now in your first terminal apply the files for the Canary Deployment:
 
 ```
-oc create -f kubernetes/canary/1-vs-v1.yml
-oc replace -f kubernetes/canary/2-vs-v1_and_v2_90_10.yml
-oc replace -f kubernetes/canary/3-vs-v1_and_v2_50_50.yml
-oc replace -f kubernetes/canary/4-vs-v2.yml
+oc create -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/canary/1-vs-v1.yml
+oc replace -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/canary/2-vs-v1_and_v2_90_10.yml
+oc replace -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/canary/3-vs-v1_and_v2_50_50.yml
+oc replace -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/canary/4-vs-v2.yml
 ```
 
 Check Kiali and Jaeger, you can open these from OpenShift Console (Networing Routes).
@@ -158,7 +156,6 @@ while true; do curl $ROUTE/service-a; sleep 0.5; done
 ```
 oc scale deploy/service-c-v1 --replicas 0
 oc scale deploy/service-c-v2 --replicas 2
-oc replace -f kubernetes/circuit-breaker/1-vs.yml
 ```
 
 Now connect to service-c and let it crash... in a separate terminal, run
@@ -175,8 +172,8 @@ See what happens in the terminal with the curl loop.
 Now apply the Circuit Breaker (check what happens), then the Retry policy.
 
 ```
-oc replace -f kubernetes/circuit-breaker/2-destination-rules.yml
-oc replace -f kubernetes/circuit-breaker/3-vs-retry.yml
+oc replace -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/circuit-breaker/2-destination-rules.yml
+oc replace -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/circuit-breaker/3-vs-retry.yml
 ```
 
 Finally repair the crashed service:
