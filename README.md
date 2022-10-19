@@ -1,6 +1,6 @@
 # Open Tour 2022 - Service Mesh
 
-In this workshop we'll have a look at how a Service Mesh can help us to enhance the Security, Observability and Resiliency of our microservices. And all that without the need to add any libraries (say Hello to resilience4j and Spring Cloud) or to write infrastructure-related code.
+In this workshop we'll have a look at how a Service Mesh can help us to enhance the Security, Observability and Resiliency of our microservices. And all that without the need to add any libraries (say Hello to Spring Cloud) or to write infrastructure-related code.
 
 ## About Service Meshes
 
@@ -41,26 +41,40 @@ Service Registries and Config Server were needed to keep the fleet of microservi
 * Infrastructure-related code needed but we want to focus on business functionality
 * Libs in other languages like Python, Ruby, JavaScript/NodeJS not available
 
+Let's move forward to make it better by using a Service Mesh!
+
+### Istio and Envoy
+
+There are several service meshes available for Kubernetes, including Istio and Envoy, Linkerd, Consul. We work with the Red Hat Service Mesh based on Istio and Envoy.
+
 ### The Sidecar
 
+The Sidecar pattern offloads functionality from application code to the Service Mesh.
 
+![Sidecar](docs/diagrams/sidecar.png)
 
+### Control Plane and Data Plane
 
+As we've bundled all the features for Observability, Security and Resiliency in a Sidecar), we can create a Control Plane to configure the sidecars.
 
+![Control Plane and Data Plane](docs/diagrams/control_data_plane.png)
 
+## The sample apps
 
+I created 3 samples apps, called Service A, B and C.
 
-## Projects
+* Service A: Python app with an upstream call to Service B.
+* Service B: TypeScript/Deno app with an upstream call to Service C.
+* Service C: Java app with the Javalin web framework.
 
-Deploy projects service-a, service-b, service-c.
+To play with the apps, just run the podman-compose file ('podman-compose up --build' - also works with Docker Compose) and call service-a to see the call hierarchy. service-c has endpoints to activate error mode ('/crash', '/repair').
 
-Call service-a to see the call hierarchy. service-c has endpoints to throw errors ('/misbehave', '/behave').
+Then let's move forward to Kubernetes / OpenShift. If you don't have access to an OpenShift cluster, just use [OpenShift Local](https://developers.redhat.com/products/openshift-local/overview)
 
-Projects can be run via docker ('podman-compose up --build') or deployed to OpenShift Kubernetes (see Deployment files in folder 'kubernetes').
 
 ## OpenShift Service Mesh preparation
 
-See https://docs.openshift.com/container-platform/4.11/service_mesh/v2x/installing-ossm.html
+See [OpenShift Docs](https://docs.openshift.com/container-platform/4.11/service_mesh/v2x/installing-ossm.html)
 
 Install in order:
 
@@ -100,7 +114,7 @@ Now we create a Gateway and expose our service-a.
 
 ```
 oc create -f kubernetes/gateway.yml
-oc get route istio-ingressgateway -n YOUR_CONTROL_PLANE_NAMESPACE
+oc get route istio-ingressgateway -n istio-system
 
 ROUTE=....
 curl $ROUTE/service-a
