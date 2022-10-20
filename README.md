@@ -2,13 +2,6 @@
 
 In this workshop we'll have a look at how a Service Mesh can help us to enhance the Security, Observability and Resiliency of our microservices. And all that without the need to add any libraries (say Hello to Spring Cloud) or to write infrastructure-related code.
 
-## About Service Meshes
-
-What means Security, Observability and Resiliency in our microservice landscape?
-
-
-* Traffic shaping allows us to release new software versions as "Canary releases" to avoid the risk of a Big Bang / All at Once approach.
-
 ## Microservice architectures
 
 After some success and some more challenges with monolithic applications, platforms like Kubernetes and Microservice architectures came to our rescue. Greenfield apps are developed in microservices now, and existing monoliths (aka legacy apps) are converted into microservices.
@@ -35,17 +28,17 @@ Service Registries and Config Server were needed to keep the fleet of microservi
 
 ![Embedding capacities](docs/diagrams/embedding_capacities.png)
 
-**It works, but not the perfect solution:**
+**It works, but it's not the perfect solution:**
 
 * Lots of libraries
 * Infrastructure-related code needed but we want to focus on business functionality
-* Libs in other languages like Python, Ruby, JavaScript/NodeJS not available
+* Libs in other languages than Java - e.g. Python, Ruby, JavaScript/NodeJS - maybe not available or behaving differently
 
 Let's move forward to make it better by using a Service Mesh!
 
 ### Istio and Envoy
 
-There are several service meshes available for Kubernetes, including Istio and Envoy, Linkerd, Consul. We work with the Red Hat Service Mesh based on Istio and Envoy.
+There are several service meshes available for Kubernetes, including Istio and Envoy, Linkerd, Consul. We work with the Red Hat OpenShift Service Mesh, which is based on Istio and Envoy.
 
 ### The Sidecar
 
@@ -122,7 +115,15 @@ curl $ROUTE/service-a
 
 If the services respond correctly, continue.
 
-### Canary Releases
+## Canary Releases
+
+Traffic shaping allows us to release new software versions as "Canary releases" to avoid the risk of a Big Bang / All at Once approach. This is the first use case we'll have a look at.
+
+### What is a Canary Release?
+
+![Canary Release](docs/diagrams/canary_release.png)
+
+
 
 ```
 oc create -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/destination-rules.yml
@@ -146,6 +147,8 @@ oc replace -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022
 Check Kiali and Jaeger, you can open these from OpenShift Console (Networing Routes).
 
 ### Circuit Breaker and Retry
+
+![Circuit Breaker](docs/diagrams/circuit_breaker.png)
 
 Let the terminal with the curl loop running or open a new one:
 ```
