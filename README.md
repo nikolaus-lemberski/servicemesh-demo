@@ -48,7 +48,7 @@ The Sidecar pattern offloads functionality from application code to the Service 
 
 ### Control Plane and Data Plane
 
-As we've bundled all the features for Observability, Security and Resiliency in a Sidecar), we can use the Control Plane to configure the sidecars.
+As we've bundled all the features for Observability, Security and Resiliency in a Sidecar1, we can use the Control Plane to configure the sidecars.
 
 ![Control Plane and Data Plane](docs/diagrams/control_data_plane.png)
 
@@ -60,10 +60,9 @@ I created 3 sample apps, called Service A, B and C.
 * Service B: TypeScript/Deno app with an upstream call to Service C.
 * Service C: Java app
 
-To play with the apps, just run the podman-compose file ('podman-compose up --build' - also works with Docker Compose) and call service-a on localhost:3000 to see the call hierarchy. service-c (port 3002) has endpoints to activate error mode ('/crash', '/repair').
+To play with the apps, just run the podman-compose file ('podman-compose up --build' - also works with Docker Compose) and call service-a on localhost:3000 to see the call hierarchy. service-c (port 3002) has endpoints to activate ('/crash') and deactivate ('/repair') error mode.
 
-Then let's move forward to Kubernetes / OpenShift. If you don't have access to an OpenShift cluster, just use [OpenShift Local](https://developers.redhat.com/products/openshift-local/overview)
-
+Then let's move forward to Kubernetes / OpenShift. If you don't have access to an OpenShift cluster, just use [OpenShift Local](https://developers.redhat.com/products/openshift-local/overview). You can also run the apps and use cases with other K8s distributions, for example Minikube on your local machine. However, not all Service Mesh functionality may be available and Ingress may behave differently. The installation will be different to the instructions in the following section. Just check the documentation of your preffered K8s.
 
 ## OpenShift Service Mesh preparation
 
@@ -117,41 +116,52 @@ If the services respond correctly, continue.
 
 ## Canary Releases
 
-Traffic shaping allows us to release new software versions as "Canary releases" to avoid the risk of a Big Bang / All at Once approach. This is the first use case we'll have a look at.
+Traffic shaping allows us to release new software versions as "Canary releases" to **avoid the risk of a Big Bang / All at Once approach**. This is the first use case we'll have a look at.
 
 ### What is a Canary Release?
 
+With a Canary Release you deploy the new version of your app to production but you keep the former version and you send only a small set of users to the new version. If the new version performs well and as expexted, you send more traffic to the new version. If 100% traffic goes to the new version, you can scale down and remove the former version.
+
 ![Canary Release](docs/diagrams/canary_release.png)
 
+There are lots of options, how to adjust the traffic, for example by user group, location and so on. Here we just use a simple approach by defining the percentage of traffic for each version.
 
+### Run the Canary Release
 
-```
-oc create -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/destination-rules.yml
-```
+We already have two versions of service-c deployed. At the moment the traffic goes 50%/50%, the default "round robin" behavior of service routing in Kubernetes.
 
-Open a second terminal and run:
-```
+With a Service Mesh, we can finetune this behavior. First we inform the Service Mesh about our two versions, using a **DestinationRule**:  
+`oc create -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/destination-rules.yml`
+
+Then we can start to shift the traffic. Open 2 terminals. 
+
+**Terminal 1:**
+```sh
 ROUTE=...
 while true; do curl $ROUTE/service-a; sleep 0.5; done
 ```
 
-Now in your first terminal apply the files for the Canary Deployment:
+**Terminal 2:**
 
-```
-oc create -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/canary/1-vs-v1.yml
-oc replace -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/canary/2-vs-v1_and_v2_90_10.yml
-oc replace -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/canary/3-vs-v1_and_v2_50_50.yml
-oc replace -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/canary/4-vs-v2.yml
-```
+1. 100% traffic goes to our "old" version 1  
+`oc create -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/canary/1-vs-v1.yml`
+2. We start the canary release by sending 10% of traffic to version 2  
+`oc replace -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/canary/2-vs-v1_and_v2_90_10.yml`
+3. We are happy with version 2 and increase the traffic to 50%  
+`oc replace -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/canary/3-vs-v1_and_v2_50_50.yml`
+4. Finally we send 100% of the traffic to version 2  
+`oc replace -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/canary/4-vs-v2.yml`
 
-Check Kiali and Jaeger, you can open these from OpenShift Console (Networing Routes).
+While applying steps 1-4, check Kiali and Jaeger. Here you have great Observability without any libraries or coding*. You can open Jaeger and Kiali from OpenShift Console (Networing Routes).
+
+_(*) The Envoy Sidecar automatically injects tracing headers and sends the information to Kiali and Jaeger. For the Distributed Tracing, you must propagate the tracing headers when doing calls to other services. See [Istio Header Propagation](https://istio.io/latest/docs/tasks/observability/distributed-tracing/overview/)._
 
 ### Circuit Breaker and Retry
 
 ![Circuit Breaker](docs/diagrams/circuit_breaker.png)
 
 Let the terminal with the curl loop running or open a new one:
-```
+```sh
 ROUTE=...
 while true; do curl $ROUTE/service-a; sleep 0.5; done
 ```
