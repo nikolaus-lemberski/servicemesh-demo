@@ -202,7 +202,7 @@ Now apply the Circuit Breaker (check what happens), then the Retry policy.
 Better, but still some errors. Let's apply the retry policy.
 
 **Terminal 2:**  
-`oc replace -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/circuit-breaker/3-vs-retry.yml``
+`oc replace -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/circuit-breaker/3-vs-retry.yml`
 
 Finally repair the crashed service.
 
