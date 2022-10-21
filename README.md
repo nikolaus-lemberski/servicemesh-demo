@@ -91,7 +91,7 @@ Then:
 
 In your apps project, deploy the sample apps:
 
-```
+```sh
 oc create -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/a-deploy.yml
 oc create -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/b-deploy.yml
 oc create -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/c-v1-deploy.yml
@@ -104,11 +104,11 @@ Check the pods - all pods should be running and you should see in the READY colu
 
 Now we create a Gateway and expose our service-a.
 
-```
+```sh
 oc create -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/gateway.yml
 oc get route istio-ingressgateway -n istio-system
 
-ROUTE=....
+ROUTE=...
 curl $ROUTE/service-a
 ```
 
@@ -130,7 +130,7 @@ There are lots of options, how to adjust the traffic, for example by user group,
 
 We already have two versions of service-c deployed. At the moment the traffic goes 50%/50%, the default "round robin" behavior of service routing in Kubernetes.
 
-With a Service Mesh, we can finetune this behavior. First we inform the Service Mesh about our two versions, using a **DestinationRule**:  
+With a Service Mesh, we can finetune this behavior. First we inform the Service Mesh about our two versions, using a _DestinationRule_:  
 `oc create -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/destination-rules.yml`
 
 Then we can start to shift the traffic. Open 2 terminals. 
@@ -142,7 +142,6 @@ while true; do curl $ROUTE/service-a; sleep 0.5; done
 ```
 
 **Terminal 2:**
-
 1. 100% traffic goes to our "old" version 1  
 `oc create -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/canary/1-vs-v1.yml`
 2. We start the canary release by sending 10% of traffic to version 2  
@@ -152,49 +151,64 @@ while true; do curl $ROUTE/service-a; sleep 0.5; done
 4. Finally we send 100% of the traffic to version 2  
 `oc replace -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/canary/4-vs-v2.yml`
 
-While applying steps 1-4, check Kiali and Jaeger. Here you have great Observability without any libraries or coding*. You can open Jaeger and Kiali from OpenShift Console (Networing Routes).
+While applying steps 1-4, check Kiali and Jaeger. Here you have great Observability without any libraries or coding*. You can open Jaeger and Kiali from the OpenShift Console (Networing Routes).
 
-_(*) The Envoy Sidecar automatically injects tracing headers and sends the information to Kiali and Jaeger. For the Distributed Tracing, you must propagate the tracing headers when doing calls to other services. See [Istio Header Propagation](https://istio.io/latest/docs/tasks/observability/distributed-tracing/overview/)._
+_(*) The Envoy Sidecar automatically injects tracing headers and sends traffic metadata to Kiali and Jaeger. For the Distributed Tracing, you must propagate the tracing headers when doing calls to other services. See [Istio Header Propagation](https://istio.io/latest/docs/tasks/observability/distributed-tracing/overview/)._
 
 ### Circuit Breaker and Retry
 
+Circuit Breaker and Retries are pattern Resiliency pattern. A circuit breaker blocks traffic to a slow or non-performing service, so the app can (hopefully) recover. This is to prevent cascading failures, a commen scenario if for example Thread Pools are running full while all requests wait for an unresponsive service.
+
+A circuit breaker reduces the number of errors that are propagated to the end user and prevent cascading failures. With Retry policies we can eliminate almost all. If an error occurs or the service call is too slow, the Retry policy will try the service call again, is routed to another app instance and the request is processed successfully.
+
 ![Circuit Breaker](docs/diagrams/circuit_breaker.png)
 
-Let the terminal with the curl loop running or open a new one:
+Let the terminal with the curl loop running or open a new one.
+
+**Terminal 1:**
 ```sh
 ROUTE=...
 while true; do curl $ROUTE/service-a; sleep 0.5; done
 ```
 
-```
+In Terminal 2, let's reset the VirtualService from our former Canary release and scale the service-c-v1 down to zero replicas and service-c-v2 up to 2 replicas.
+
+**Terminal 2:**
+```sh
+oc replace -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/circuit-breaker/1-vs.yml
 oc scale deploy/service-c-v1 --replicas 0
 oc scale deploy/service-c-v2 --replicas 2
 ```
 
 Now connect to service-c and let it crash... in a separate terminal, run
 
-```
+**Terminal 3:**
+```sh
 oc get pod
 POD_NAME=....
 oc port-forward pod/$POD_NAME 8080:8080
-curl localhost:8080/crash
 ```
 
-See what happens in the terminal with the curl loop.
+Let the port-forwarding of Terminal 3 open, go back to Terminal 2 and let one app of service-c crash:  
+`curl localhost:8080/crash`
+
+See what happens in Terminal 1 with the curl loop.
 
 Now apply the Circuit Breaker (check what happens), then the Retry policy.
 
-```
-oc replace -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/circuit-breaker/2-destination-rules.yml
-oc replace -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/circuit-breaker/3-vs-retry.yml
-```
+**Terminal 2:**  
+`oc replace -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/circuit-breaker/2-destination-rules.yml`
 
-Finally repair the crashed service:
-```
-curl localhost:8080/repair
-```
+Better, but still some errors. Let's apply the retry policy.
 
-After ~10 seconds the repaired pod gets traffic.
+**Terminal 2:**  
+`oc replace -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/circuit-breaker/3-vs-retry.yml``
 
+Finally repair the crashed service.
 
-Congratulations, you made it!!
+**Terminal 2:**  
+`curl localhost:8080/repair`
+
+After ~10 seconds the repaired pod gets traffic (Circuit Breaker goes from open to close).
+
+**Congratulations, you made it!!**
