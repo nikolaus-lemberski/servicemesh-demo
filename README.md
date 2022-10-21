@@ -48,7 +48,7 @@ The Sidecar pattern offloads functionality from application code to the Service 
 
 ### Control Plane and Data Plane
 
-As we've bundled all the features for Observability, Security and Resiliency in a Sidecar1, we can use the Control Plane to configure the sidecars.
+As we've bundled all the features for Observability, Security and Resiliency in a Sidecar, we can use the Control Plane to configure the sidecars.
 
 ![Control Plane and Data Plane](docs/diagrams/control_data_plane.png)
 
@@ -56,9 +56,9 @@ As we've bundled all the features for Observability, Security and Resiliency in 
 
 I created 3 sample apps, called Service A, B and C.
 
-* Service A: Python app with an upstream call to Service B.
-* Service B: TypeScript/Deno app with an upstream call to Service C.
-* Service C: Java app
+* Service A: Python app which calls Service B
+* Service B: TypeScript/Deno app which calls Service C
+* Service C: Java app with endpoints to simulate failures
 
 To play with the apps, just run the podman-compose file ('podman-compose up --build' - also works with Docker Compose) and call service-a on localhost:3000 to see the call hierarchy. service-c (port 3002) has endpoints to activate ('/crash') and deactivate ('/repair') error mode.
 
@@ -126,7 +126,7 @@ With a Canary Release you deploy the new version of your app to production but y
 
 There are lots of options, how to adjust the traffic, for example by user group, location and so on. Here we just use a simple approach by defining the percentage of traffic for each version.
 
-### Run the Canary Release
+### Apply the Canary Release
 
 We already have two versions of service-c deployed. At the moment the traffic goes 50%/50%, the default "round robin" behavior of service routing in Kubernetes.
 
