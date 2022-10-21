@@ -1,6 +1,6 @@
 # Open Tour 2022 - Service Mesh
 
-In this workshop we'll have a look at how a Service Mesh can help us to enhance the Security, Observability and Resiliency of our microservices. And all that without the need to add any libraries (say Hello to Spring Cloud) or to write infrastructure-related code.
+In this workshop we'll have a look at how a Service Mesh can help us to enhance the Security, Observability and Resiliency of our microservices. And all that without the need to add any libraries (say Goodbye to Spring Cloud) or to write infrastructure-related code.
 
 ## Microservice architectures
 
