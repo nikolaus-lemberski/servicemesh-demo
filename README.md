@@ -1,6 +1,6 @@
 # Open Tour 2022 - Service Mesh
 
-In this workshop we'll have a look at how a Service Mesh can help us to enhance the Security, Observability and Resiliency of our microservices. And all that without the need to add any libraries (say Goodbye to Spring Cloud) or to write infrastructure-related code.
+In this workshop we'll have a look at how a Service Mesh can help us to enhance the Security, Observability and Resiliency of our microservices. And all that without the need to add any libraries (say Hello and Goodbye to Spring Cloud) or to write infrastructure-related code.
 
 ## Microservice architectures
 
@@ -157,7 +157,7 @@ _(*) The Envoy Sidecar automatically injects tracing headers and sends traffic m
 
 ### Circuit Breaker and Retry
 
-Circuit Breaker and Retries are pattern Resiliency pattern. A circuit breaker blocks traffic to a slow or non-performing service, so the app can (hopefully) recover. This is to prevent cascading failures, a commen scenario if for example Thread Pools are running full while all requests wait for an unresponsive service.
+Circuit Breaker and Retries are Resiliency pattern. A circuit breaker blocks traffic to a slow or non-performing service, so the app can (hopefully) recover. This is to prevent cascading failures, a commen scenario if for example Thread Pools are running full while all requests wait for an unresponsive service.
 
 A circuit breaker reduces the number of errors that are propagated to the end user and prevent cascading failures. With Retry policies we can eliminate almost all. If an error occurs or the service call is too slow, the Retry policy will try the service call again, is routed to another app instance and the request is processed successfully.
 
