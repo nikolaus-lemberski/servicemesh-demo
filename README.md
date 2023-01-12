@@ -132,6 +132,9 @@ curl $ROUTE/service-a
 
 If the services respond correctly (output "Service A <- Service B <- Service C ..."), continue.
 
+If you call service-a several times, you will see the default traffic management behavior, i.e. a round-robin distribution of the versions v1 and v2 of service-c.
+
+
 ## Canary Releases
 
 Traffic shaping allows us to release new software versions as "Canary releases" to **avoid the risk of a Big Bang / All at Once approach**. This is the first use case we'll have a look at.
