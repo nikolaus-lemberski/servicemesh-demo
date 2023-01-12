@@ -81,6 +81,10 @@ Namespace: openshift-operators
 
 Then:
 
+* Create "servicemesh-apps" namespace, where the apps will be installed inside
+    ```sh
+    oc create namespace servicemesh-apps
+    ```
 * Create "istio-system" namespace, where the Service Mesh Control plane will reside, and switch to it
     ```sh
     oc new-project istio-system
@@ -92,10 +96,6 @@ Then:
 * Create ServiceMeshMemberRoll (kubernetes/memberroll.yml) inside "istio-system" namespace
     ```sh
     oc apply -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/memberroll.yml
-    ```
-* Create "servicemesh-apps" namespace, where the apps will be installed inside, and switch to it
-    ```sh
-    oc new-project servicemesh-apps
     ```
 
 
