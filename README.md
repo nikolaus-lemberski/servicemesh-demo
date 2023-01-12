@@ -81,15 +81,21 @@ Namespace: openshift-operators
 
 Then:
 
-* Create "istio-system" namespace
-* Install ServiceMeshControlPlane (istio/controlplane.yml)
-* Create ServiceMeshMemberRoll (istio/memberroll.yml)
+* Create "istio-system" namespace, where the Service Mesh Control plane will reside, and switch to it
+    ```oc new-project istio-system```
+* Install ServiceMeshControlPlane (kubernetes/controlplane.yml) inside "istio-system" namespace
+    ```oc apply -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/controlplane.yml```
+* Create ServiceMeshMemberRoll (kubernetes/memberroll.yml) inside "istio-system" namespace
+    ```oc apply -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/memberroll.yml```
+* Create "servicemesh-apps" namespace, where the apps will be installed inside, and switch to it
+    ```oc new-project servicemesh-apps```
+
 
 ## Using the Service Mesh
 
 ### Deploy the sample apps
 
-In your apps project, deploy the sample apps:
+In your apps project (namespace "servicemesh-apps"), deploy the sample apps:
 
 ```sh
 oc create -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/a-deploy.yml
