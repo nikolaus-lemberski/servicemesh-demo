@@ -112,7 +112,7 @@ oc create -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-
 oc create -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/c-v2-deploy.yml
 ```
 
-Check the pods - all pods should be running and you should see in the READY column "2/2". Why 2? In the pod are 2 containers - one for the app and one for the Envoy Sidecar.
+Check the pods (```oc get pods```) - all pods should be running and you should see in the READY column "2/2". Why 2? In the pod are 2 containers - one for the app and one for the Envoy Sidecar.
 
 ### Create a Gateway for Ingress
 
@@ -121,12 +121,16 @@ Now we create a Gateway and expose our service-a.
 ```sh
 oc create -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/gateway.yml
 oc get route istio-ingressgateway -n istio-system
+```
 
-ROUTE=...
+Set an evnironment variable "ROUTE" that contains the PATH column value of the output of the previous command and call service-a.
+
+```sh
+export $ROUTE=CONTENT_OF_PATH_COLUMN_VALUE
 curl $ROUTE/service-a
 ```
 
-If the services respond correctly, continue.
+If the services respond correctly (output "Service A <- Service B <- Service C ..."), continue.
 
 ## Canary Releases
 
