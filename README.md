@@ -178,7 +178,7 @@ _(*) The Envoy Sidecar automatically injects tracing headers and sends traffic m
 
 ## Circuit Breaker and Retry
 
-Circuit Breaker and Retries are Resiliency pattern. A circuit breaker blocks traffic to a slow or non-performing service, so the app can (hopefully) recover. This is to prevent cascading failures, a commen scenario if for example Thread Pools are running full while all requests wait for an unresponsive service.
+Circuit Breaker and Retries are Resiliency pattern. A circuit breaker blocks traffic to a slow or non-performing service, so the app can (hopefully) recover. This is to prevent cascading failures, a common scenario if for example Thread Pools are running full while all requests wait for an unresponsive service.
 
 A circuit breaker reduces the number of errors that are propagated to the end user and prevent cascading failures. With Retry policies we can eliminate almost all. If an error occurs or the service call is too slow, the Retry policy will try the service call again, is routed to another app instance and the request is processed successfully.
 
@@ -206,7 +206,7 @@ Now connect to service-c and let it crash... in a separate terminal, run
 **Terminal 3:**
 ```sh
 oc get pod
-POD_NAME=....
+export POD_NAME=....
 oc port-forward pod/$POD_NAME 8080:8080
 ```
 
