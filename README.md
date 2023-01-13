@@ -238,7 +238,7 @@ After ~10 seconds the repaired pod gets traffic (Circuit Breaker goes from open 
 ### Observe unencrypted traffic
 By default, mTLS is enabled in the Service Mesh using the "permissive" mode, which allows two communcating sidecars to accept both plain-text traffic as well as connections encrypted with mTLS.
 
-To demonstrate the usages of mTLS, first create a namespace "test-mtls" and switch to it:
+To demonstrate the usage of mTLS, first create a namespace "test-mtls" and switch to it:
 ```sh
 oc new-project test-mtls
 ```
@@ -253,7 +253,7 @@ Obtain the cluster-internal ip address of `service-a`, so that it can later be c
 export SERVICE_A_INTERNAL=172.30.253.40:8080
 ```
 
-Now open a terminal in the dummy pod (e.g. via "OpenShift Console --> Workloads --> Pods --> namespace "test-mtls" --> dummy pod --> tab 'Terminal'") and call 'service-a':
+Now open a terminal in the dummy pod (e.g. via "OpenShift Console --> Workloads --> Pods --> namespace "test-mtls" --> dummy pod --> tab Terminal") and call 'service-a':
 ```sh
 curl $SERVICE_A_INTERNAL
 ```
@@ -269,13 +269,13 @@ spec:
       mtls: true
 ```
 
-Back in the dummy pod terminal, call `service-a` again:
+Back in the dummy pod terminal, call `service-a` again
 ```sh
 curl $SERVICE_A_INTERNAL
 ```
 to see that it is not working anymore:
 ```
-curl: (6) Could not resolve host: SERVICE_A_INTERNAL`
+curl: (6) Could not resolve host: SERVICE_A_INTERNAL
 ```
 
 Since the dummy pod is not inside the Service Mesh, it cannot be properly authenticated and thus it cannot cummincate with `service-a`.
@@ -297,12 +297,12 @@ Then deploy a second dummy app, i.e. a simple pod with `curl` installed, which s
 oc apply -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/d-2-dummy-servicemesh-deploy.yml
 ```
 
-Now open a terminal in the dummy-servicemesh pod (e.g. via "OpenShift Console --> Workloads --> Pods --> namespace "test-mtls" --> dummy-servicemesh pod --> tab 'Terminal'") and call 'service-a':
+Now open a terminal in the dummy-servicemesh pod (e.g. via "OpenShift Console --> Workloads --> Pods --> namespace "test-mtls" --> dummy-servicemesh pod --> tab Terminal") and call 'service-a':
 ```sh
 export SERVICE_A_INTERNAL=172.30.253.40:8080
 curl $SERVICE_A_INTERNAL
 ```
 
-As can be seen, the desired output "Service A <- Service B <- Service C ..." can be seen again. The app dummy-servicemesh is now communicating with service-a in an encrpyted way using mTLS and services without sidecars, i.e. without being inside the mesh, will not be able to connect to service-a anymore.
+As can be seen, the desired output "Service A <- Service B <- Service C ..." can be seen again. The app dummy-servicemesh is now communicating with service-a in an encrpyted way using mTLS. Services without sidecars, i.e. without being inside the mesh, will not be able to connect to service-a anymore.
 
 **Secondary mission objectives completed, the emperor will be pleased!**
