@@ -245,7 +245,7 @@ oc new-project test-mtls
 
 Then deploy a dummy app, i.e. a simple pod with `curl` installed, which is not part of the Service Mesh:
 ```sh
-oc apply -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/d-1-dummy-deploy.yml
+oc apply -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/mtls/1-dummy-deploy.yml
 ```
 
 Obtain the cluster-internal ip address of `service-a`, so that it can later be called by the dummy app. See "OpenShift Console --> Network --> Services --> namespace "test-mtls" --> service-a --> Cluster IP" and save the cluster ip (e.g. 172.30.253.40) along with the port 8080 in an environment variable, e.g.
@@ -294,7 +294,7 @@ spec:
 
 Then deploy a second dummy app, i.e. a simple pod with `curl` installed, which shall have a sidecar injected (observe that after creation the pod has 2 containers):
 ```sh
-oc apply -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/d-2-dummy-servicemesh-deploy.yml
+oc apply -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/mtls/2-dummy-servicemesh-deploy.yml
 ```
 
 Now open a terminal in the dummy-servicemesh pod (e.g. via "OpenShift Console --> Workloads --> Pods --> namespace "test-mtls" --> dummy-servicemesh pod --> tab Terminal") and call 'service-a':
