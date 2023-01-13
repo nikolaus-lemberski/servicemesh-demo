@@ -126,7 +126,7 @@ oc get route istio-ingressgateway -n istio-system
 Set an evnironment variable "ROUTE" that contains the PATH column value of the output of the previous command and call service-a.
 
 ```sh
-export $ROUTE=CONTENT_OF_PATH_COLUMN_VALUE
+export ROUTE=CONTENT_OF_PATH_COLUMN_VALUE
 curl $ROUTE/service-a
 ```
 
@@ -176,7 +176,7 @@ While applying steps 1-4, check Kiali and Jaeger. Here you have great Observabil
 
 _(*) The Envoy Sidecar automatically injects tracing headers and sends traffic metadata to Kiali and Jaeger. For the Distributed Tracing, you must propagate the tracing headers when doing calls to other services. See [Istio Header Propagation](https://istio.io/latest/docs/tasks/observability/distributed-tracing/overview/)._
 
-### Circuit Breaker and Retry
+## Circuit Breaker and Retry
 
 Circuit Breaker and Retries are Resiliency pattern. A circuit breaker blocks traffic to a slow or non-performing service, so the app can (hopefully) recover. This is to prevent cascading failures, a commen scenario if for example Thread Pools are running full while all requests wait for an unresponsive service.
 
@@ -232,4 +232,77 @@ Finally repair the crashed service.
 
 After ~10 seconds the repaired pod gets traffic (Circuit Breaker goes from open to close).
 
-**Congratulations, you made it!!**
+**Congratulations, you made it!! Primary mission objectives received!**
+
+## Add-on: Securing mesh communication with mTLS
+### Observe unencrypted traffic
+By default, mTLS is enabled in the Service Mesh using the "permissive" mode, which allows two communcating sidecars to accept both plain-text traffic as well as connections encrypted with mTLS.
+
+To demonstrate the usages of mTLS, first create a namespace "test-mtls" and switch to it:
+```sh
+oc new-project test-mtls
+```
+
+Then deploy a dummy app, i.e. a simple pod with `curl` installed, which is not part of the Service Mesh:
+```sh
+oc apply -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/d-1-dummy-deploy.yml
+```
+
+Obtain the cluster-internal ip address of `service-a`, so that it can later be called by the dummy app. See "OpenShift Console --> Network --> Services --> namespace "test-mtls" --> service-a --> Cluster IP" and save the cluster ip (e.g. 172.30.253.40) along with the port 8080 in an environment variable, e.g.
+```sh
+export SERVICE_A_INTERNAL=172.30.253.40:8080
+```
+
+Now open a terminal in the dummy pod (e.g. via "OpenShift Console --> Workloads --> Pods --> namespace "test-mtls" --> dummy pod --> tab 'Terminal'") and call 'service-a':
+```sh
+curl $SERVICE_A_INTERNAL
+```
+
+The desired output ("Service A <- Service B <- Service C ...") can be seen.
+
+### Activate strict mTLS usage
+In order to enforce apps in the Service Mesh to communicate in an encrypted way using mTLS, the following change is done in the Service Mesh Control Plane configuration ("OpenShift Console --> Operators --> Installed Operators --> namespace 'istio-system' --> Red Hat OpenShift Service Mesh --> Istio Service Mesh Control Plane --> basic --> tab YAML"):
+```yaml
+spec:
+  security:
+    dataPlane:
+      mtls: true
+```
+
+Back in the dummy pod terminal, call `service-a` again:
+```sh
+curl $SERVICE_A_INTERNAL
+```
+to see that it is not working anymore:
+```
+curl: (6) Could not resolve host: SERVICE_A_INTERNAL`
+```
+
+Since the dummy pod is not inside the Service Mesh, it cannot be properly authenticated and thus it cannot cummincate with `service-a`.
+
+### Include a dummy app inside the Service Mesh
+
+First, the Service Mesh needs to know that apps of the namespace `test-mtls` shall be part of the mesh. Therefore modify the previously created ServiceMeshMemberRoll via "OpenShift Console --> Operators --> Installed Operators --> namespace 'istio-system' --> Red Hat OpenShift Service Mesh --> Istio Service Mesh Member Roll --> default --> tab YAML" and add namespace `test-mtls` to spec --> members, which will then look like:
+```yaml
+...
+spec:
+  members:
+    - servicemesh-apps
+    - test-mtls
+...
+```
+
+Then deploy a second dummy app, i.e. a simple pod with `curl` installed, which shall have a sidecar injected (observe that after creation the pod has 2 containers):
+```sh
+oc apply -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/d-2-dummy-servicemesh-deploy.yml
+```
+
+Now open a terminal in the dummy-servicemesh pod (e.g. via "OpenShift Console --> Workloads --> Pods --> namespace "test-mtls" --> dummy-servicemesh pod --> tab 'Terminal'") and call 'service-a':
+```sh
+export SERVICE_A_INTERNAL=172.30.253.40:8080
+curl $SERVICE_A_INTERNAL
+```
+
+As can be seen, the desired output "Service A <- Service B <- Service C ..." can be seen again. The app dummy-servicemesh is now communicating with service-a in an encrpyted way using mTLS and services without sidecars, i.e. without being inside the mesh, will not be able to connect to service-a anymore.
+
+**Secondary mission objectives completed, the emperor will be pleased!**
