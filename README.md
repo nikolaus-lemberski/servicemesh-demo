@@ -98,7 +98,6 @@ Then:
     oc apply -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/memberroll.yml
     ```
 
-
 ## Using the Service Mesh
 
 ### Deploy the sample apps
