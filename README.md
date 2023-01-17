@@ -152,7 +152,9 @@ There are lots of options, how to adjust the traffic, for example by user group,
 We already have two versions of service-c deployed. At the moment the traffic goes 50%/50%, the default "round robin" behavior of service routing in Kubernetes.
 
 With a Service Mesh, we can finetune this behavior. First we inform the Service Mesh about our two versions, using a _DestinationRule_:  
-`oc create -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/destination-rules.yml`
+```
+oc create -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/destination-rules.yml
+```
 
 Then we can start to shift the traffic. Open 2 terminals. 
 
@@ -164,13 +166,21 @@ while true; do curl $ROUTE/service-a; sleep 0.5; done
 
 **Terminal 2:**
 1. 100% traffic goes to our "old" version 1  
-`oc create -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/canary/1-vs-v1.yml`
+   ```
+   oc create -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/canary/1-vs-v1.yml
+   ```
 2. We start the canary release by sending 10% of traffic to version 2  
-`oc replace -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/canary/2-vs-v1_and_v2_90_10.yml`
+   ```
+   oc replace -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/canary/2-vs-v1_and_v2_90_10.yml
+   ```
 3. We are happy with version 2 and increase the traffic to 50%  
-`oc replace -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/canary/3-vs-v1_and_v2_50_50.yml`
+   ```
+   oc replace -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/canary/3-vs-v1_and_v2_50_50.yml
+   ```
 4. Finally we send 100% of the traffic to version 2  
-`oc replace -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/canary/4-vs-v2.yml`
+   ```
+   oc replace -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/canary/4-vs-v2.yml
+   ```
 
 While applying steps 1-4, check Kiali and Jaeger. Here you have great Observability without any libraries or coding*. You can open Jaeger and Kiali from the OpenShift Console (Networing Routes).
 
@@ -211,24 +221,32 @@ oc port-forward pod/$POD_NAME 8080:8080
 ```
 
 Let the port-forwarding of Terminal 3 open, go back to Terminal 2 and let one app of service-c crash:  
-`curl localhost:8080/crash`
+```
+curl localhost:8080/crash
+```
 
 See what happens in Terminal 1 with the curl loop.
 
 Now apply the Circuit Breaker (check what happens), then the Retry policy.
 
 **Terminal 2:**  
-`oc replace -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/circuit-breaker/2-destination-rules.yml`
+   ```
+   oc replace -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/circuit-breaker/2-destination-rules.yml
+   ```
 
 Better, but still some errors. Let's apply the retry policy.
 
 **Terminal 2:**  
-`oc replace -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/circuit-breaker/3-vs-retry.yml`
+   ```
+   oc replace -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/circuit-breaker/3-vs-retry.yml
+   ```
 
 Finally repair the crashed service.
 
 **Terminal 2:**  
-`curl localhost:8080/repair`
+```
+curl localhost:8080/repair
+```
 
 After ~10 seconds the repaired pod gets traffic (Circuit Breaker goes from open to close).
 
