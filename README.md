@@ -82,8 +82,8 @@ Namespace: openshift-operators
 Then:
 
 * Create "istio-system" namespace
-* Install ServiceMeshControlPlane (istio/controlplane.yml)
-* Create ServiceMeshMemberRoll (istio/memberroll.yml)
+* Install ServiceMeshControlPlane (kubernetes/controlplane.yml)
+* Create ServiceMeshMemberRoll (kubernetes/memberroll.yml)
 
 ## Using the Service Mesh
 
