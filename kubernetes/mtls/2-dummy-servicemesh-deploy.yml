@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: dummy-servicemesh
+  name: dummy-servicemesh
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dummy-servicemesh
+  template:
+    metadata:
+      labels:
+        app: dummy-servicemesh
+        version: v1
+      annotations:
+        sidecar.istio.io/inject: "true"
+    spec:
+      containers:
+      - name: dummy-servicemesh
+        image: registry.redhat.io/devspaces/udi-rhel8:3.3-37.1673517018
+        imagePullPolicy: IfNotPresent
+        securityContext:
+          privileged: false
+          allowPrivilegeEscalation: false
+          runAsNonRoot: true
+          capabilities:
+            drop: ["ALL"]
+          seccompProfile:
+            type: RuntimeDefault         

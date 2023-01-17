@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: dummy
+  name: dummy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dummy
+  template:
+    metadata:
+      labels:
+        app: dummy
+        version: v1
+    spec:
+      containers:
+      - name: dummy
+        image: registry.redhat.io/devspaces/udi-rhel8:3.3-37.1673517018
+        imagePullPolicy: IfNotPresent
+        securityContext:
+          privileged: false
+          allowPrivilegeEscalation: false
+          runAsNonRoot: true
+          capabilities:
+            drop: ["ALL"]
+          seccompProfile:
+            type: RuntimeDefault         
