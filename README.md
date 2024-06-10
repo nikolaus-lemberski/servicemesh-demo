@@ -125,7 +125,7 @@ oc get route istio-ingressgateway -n istio-system
 Set an evnironment variable "ROUTE" that contains the PATH column value of the output of the previous command and call service-a.
 
 ```sh
-export ROUTE=CONTENT_OF_PATH_COLUMN_VALUE
+export ROUTE=http://$(oc get route istio-ingressgateway -n istio-system -o jsonpath='{.spec.host}')
 curl $ROUTE/service-a
 ```
 
@@ -159,7 +159,7 @@ Then we can start to shift the traffic. Open 2 terminals.
 
 **Terminal 1:**
 ```sh
-ROUTE=...
+export ROUTE=http://$(oc get route istio-ingressgateway -n istio-system -o jsonpath='{.spec.host}')
 while true; do curl $ROUTE/service-a; sleep 0.5; done
 ```
 
@@ -197,7 +197,7 @@ Let the terminal with the curl loop running or open a new one.
 
 **Terminal 1:**
 ```sh
-ROUTE=...
+export ROUTE=http://$(oc get route istio-ingressgateway -n istio-system -o jsonpath='{.spec.host}')
 while true; do curl $ROUTE/service-a; sleep 0.5; done
 ```
 
