@@ -1,4 +1,4 @@
-# Open Tour 2022 - Service Mesh
+# Service Mesh for developers
 
 In this workshop we'll have a look at how a Service Mesh can help us to enhance the Security, Observability and Resiliency of our microservices. And all that without the need to add any libraries (say Hello and Goodbye to Spring Cloud) or to write infrastructure-related code.
 
@@ -91,11 +91,11 @@ Then:
     ```
 * Install ServiceMeshControlPlane (kubernetes/controlplane.yml) inside "istio-system" namespace
     ```sh
-    oc apply -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/controlplane.yml
+    oc apply -f https://raw.githubusercontent.com/nikolaus-lemberski/servicemesh-demo/main/kubernetes/controlplane.yml
     ```
 * Create ServiceMeshMemberRoll (kubernetes/memberroll.yml) inside "istio-system" namespace
     ```sh
-    oc apply -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/memberroll.yml
+    oc apply -f https://raw.githubusercontent.com/nikolaus-lemberski/servicemesh-demo/main/kubernetes/memberroll.yml
     ```
 
 ## Using the Service Mesh
@@ -105,10 +105,10 @@ Then:
 In your apps project (namespace "servicemesh-apps"), deploy the sample apps:
 
 ```sh
-oc create -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/a-deploy.yml
-oc create -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/b-deploy.yml
-oc create -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/c-v1-deploy.yml
-oc create -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/c-v2-deploy.yml
+oc create -f https://raw.githubusercontent.com/nikolaus-lemberski/servicemesh-demo/main/kubernetes/a-deploy.yml
+oc create -f https://raw.githubusercontent.com/nikolaus-lemberski/servicemesh-demo/main/kubernetes/b-deploy.yml
+oc create -f https://raw.githubusercontent.com/nikolaus-lemberski/servicemesh-demo/main/kubernetes/c-v1-deploy.yml
+oc create -f https://raw.githubusercontent.com/nikolaus-lemberski/servicemesh-demo/main/kubernetes/c-v2-deploy.yml
 ```
 
 Check the pods (```oc get pods```) - all pods should be running and you should see in the READY column "2/2". Why 2? In the pod are 2 containers - one for the app and one for the Envoy Sidecar.
@@ -118,7 +118,7 @@ Check the pods (```oc get pods```) - all pods should be running and you should s
 Now we create a Gateway and expose our service-a.
 
 ```sh
-oc create -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/gateway.yml
+oc create -f https://raw.githubusercontent.com/nikolaus-lemberski/servicemesh-demo/main/kubernetes/gateway.yml
 oc get route istio-ingressgateway -n istio-system
 ```
 
@@ -152,7 +152,7 @@ We already have two versions of service-c deployed. At the moment the traffic go
 
 With a Service Mesh, we can finetune this behavior. First we inform the Service Mesh about our two versions, using a _DestinationRule_:  
 ```
-oc create -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/destination-rules.yml
+oc create -f https://raw.githubusercontent.com/nikolaus-lemberski/servicemesh-demo/main/kubernetes/destination-rules.yml
 ```
 
 Then we can start to shift the traffic. Open 2 terminals. 
@@ -166,19 +166,19 @@ while true; do curl $ROUTE/service-a; sleep 0.5; done
 **Terminal 2:**
 1. 100% traffic goes to our "old" version 1  
    ```
-   oc create -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/canary/1-vs-v1.yml
+   oc create -f https://raw.githubusercontent.com/nikolaus-lemberski/servicemesh-demo/main/kubernetes/canary/1-vs-v1.yml
    ```
 2. We start the canary release by sending 10% of traffic to version 2  
    ```
-   oc replace -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/canary/2-vs-v1_and_v2_90_10.yml
+   oc replace -f https://raw.githubusercontent.com/nikolaus-lemberski/servicemesh-demo/main/kubernetes/canary/2-vs-v1_and_v2_90_10.yml
    ```
 3. We are happy with version 2 and increase the traffic to 50%  
    ```
-   oc replace -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/canary/3-vs-v1_and_v2_50_50.yml
+   oc replace -f https://raw.githubusercontent.com/nikolaus-lemberski/servicemesh-demo/main/kubernetes/canary/3-vs-v1_and_v2_50_50.yml
    ```
 4. Finally we send 100% of the traffic to version 2  
    ```
-   oc replace -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/canary/4-vs-v2.yml
+   oc replace -f https://raw.githubusercontent.com/nikolaus-lemberski/servicemesh-demo/main/kubernetes/canary/4-vs-v2.yml
    ```
 
 While applying steps 1-4, check Kiali and Jaeger. Here you have great Observability without any libraries or coding*. You can open Jaeger and Kiali from the OpenShift Console (Networing Routes).
@@ -205,7 +205,7 @@ In Terminal 2, let's reset the VirtualService from our former Canary release and
 
 **Terminal 2:**
 ```sh
-oc replace -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/circuit-breaker/1-vs.yml
+oc replace -f https://raw.githubusercontent.com/nikolaus-lemberski/servicemesh-demo/main/kubernetes/circuit-breaker/1-vs.yml
 oc scale deploy/service-c-v1 --replicas 0
 oc scale deploy/service-c-v2 --replicas 2
 ```
@@ -230,14 +230,14 @@ Now apply the Circuit Breaker (check what happens), then the Retry policy.
 
 **Terminal 2:**  
    ```
-   oc replace -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/circuit-breaker/2-destination-rules.yml
+   oc replace -f https://raw.githubusercontent.com/nikolaus-lemberski/servicemesh-demo/main/kubernetes/circuit-breaker/2-destination-rules.yml
    ```
 
 Better, but still some errors. Let's apply the retry policy.
 
 **Terminal 2:**  
    ```
-   oc replace -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/circuit-breaker/3-vs-retry.yml
+   oc replace -f https://raw.githubusercontent.com/nikolaus-lemberski/servicemesh-demo/main/kubernetes/circuit-breaker/3-vs-retry.yml
    ```
 
 Finally repair the crashed service.
@@ -262,7 +262,7 @@ oc new-project test-mtls
 
 Then deploy a dummy app, i.e. a simple pod with `curl` installed, which is not part of the Service Mesh:
 ```sh
-oc apply -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/mtls/1-dummy-deploy.yml
+oc apply -f https://raw.githubusercontent.com/nikolaus-lemberski/servicemesh-demo/main/kubernetes/mtls/1-dummy-deploy.yml
 ```
 
 Obtain the cluster-internal ip address of `service-a`, so that it can later be called by the dummy app. See "OpenShift Console --> Network --> Services --> namespace "test-mtls" --> service-a --> Cluster IP" and save the cluster ip (e.g. 172.30.253.40) along with the port 8080 in an environment variable, e.g.
@@ -311,7 +311,7 @@ spec:
 
 Then deploy a second dummy app, i.e. a simple pod with `curl` installed, which shall have a sidecar injected (observe that after creation the pod has 2 containers):
 ```sh
-oc apply -f https://raw.githubusercontent.com/nikolaus-lemberski/opentour-2022-servicemesh/main/kubernetes/mtls/2-dummy-servicemesh-deploy.yml
+oc apply -f https://raw.githubusercontent.com/nikolaus-lemberski/servicemesh-demo/main/kubernetes/mtls/2-dummy-servicemesh-deploy.yml
 ```
 
 Now open a terminal in the dummy-servicemesh pod (e.g. via "OpenShift Console --> Workloads --> Pods --> namespace "test-mtls" --> dummy-servicemesh pod --> tab Terminal") and call 'service-a':
