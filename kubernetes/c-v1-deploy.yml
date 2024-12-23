@@ -16,6 +16,7 @@ spec:
       labels:
         app: service-c
         version: v1
+        istio-discovery: enabled
       annotations:
         sidecar.istio.io/inject: "true"
     spec:

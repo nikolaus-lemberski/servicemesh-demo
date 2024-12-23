@@ -64,18 +64,34 @@ To play with the apps, just run the podman-compose file ('podman-compose up --bu
 
 Then let's move forward to Kubernetes / OpenShift. If you don't have access to an OpenShift cluster, just use [OpenShift Local](https://developers.redhat.com/products/openshift-local/overview). You can also run the apps and use cases with other K8s distributions, for example Minikube on your local machine. However, not all Service Mesh functionality may be available and Ingress may behave differently. The installation will be different to the instructions in the following section. Just check the documentation of your preffered K8s.
 
+## OpenShift Service Mesh 3 preparation
+
+See [OpenShift Service Mesh 3](https://docs.openshift.com/service-mesh/3.0.0tp1/install/ossm-installing-openshift-service-mesh.html)
+
+Go to Operator Hub and install **Red Hat OpenShift Service Mesh 3**.
+
+Next, install the control plane:
+
+```bash
+oc create -f kubernetes/controlplane3.yml
+```
+
+Enable the Gateway API:
+
+```bash
+oc get crd gateways.gateway.networking.k8s.io &> /dev/null ||  { oc kustomize "github.com/kubernetes-sigs/gateway-api/config/crd?ref=v1.0.0" | oc apply -f -; }
+```
+
 ## OpenShift Service Mesh preparation
 
 See [OpenShift Docs](https://docs.openshift.com/container-platform/4.11/service_mesh/v2x/installing-ossm.html)
 
 Install in order:
 
-* **OpenShift Elasticsearch**  
-Namespace: openshift-operators-redhat
 * **Red Hat OpenShift distributed tracing platform**  
 Namespace: openshift-distributed-tracing
 * **Kiali**  
-Namespace: openshift-operators
+Namespace: openshift-operators  
 * **Red Hat OpenShift Service Mesh**  
 Namespace: openshift-operators
 

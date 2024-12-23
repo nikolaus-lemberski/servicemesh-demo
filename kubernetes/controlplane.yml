@@ -17,10 +17,10 @@ spec:
         storage:
           type: Memory
     kiali:
+      name: kiali
       enabled: true
     prometheus:
       enabled: true
   telemetry:
     type: Istiod
-  version: v2.6
-
+  version: v2.4
